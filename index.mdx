@@ -1,97 +1,89 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Mega Search Links"
+description: "Python library to retrieve and process URLs from Meawfy's internal API for accessing Mega.nz files"
 ---
 
-## Setting up
+<div style={{
+  background: 'linear-gradient(135deg, #3344ec 0%, #5566ff 100%)',
+  padding: '3rem 2rem',
+  borderRadius: '4px',
+  color: 'white',
+  marginBottom: '2rem'
+}}>
+  <h1 style={{
+    fontSize: '2.5rem',
+    fontWeight: 'bold',
+    marginBottom: '1rem',
+    color: 'white'
+  }}>
+    Mega Search Links
+  </h1>
+  <p style={{
+    fontSize: '1.25rem',
+    opacity: 0.95,
+    marginBottom: 0
+  }}>
+    Retrieve URLs from Meawfy's internal API for easy access to Mega.nz files
+  </p>
+</div>
 
-Get your documentation site up and running in minutes.
+## Overview
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+Mega Search Links is a lightweight Python library designed to connect to [Meawfy](https://meawfy.com)'s internal API, fetch URLs based on search queries, and process them for easy integration into your applications. Whether you're building automation tools, data aggregators, or content management systems, this library streamlines URL retrieval from Mega.nz through Meawfy's search platform.
 
-## Make it yours
+## Key features
 
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Simple API" icon="code" href="/api-reference/urlfetcher">
+    Clean, intuitive class-based interface with just two methods to learn
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Customizable requests" icon="sliders" href="/guides/customizing-user-agent">
+    Modify user-agent strings to match your application's needs
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Robust error handling" icon="shield-check" href="/guides/error-handling">
+    Built-in exception handling for HTTP errors and network issues
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Easy integration" icon="puzzle-piece" href="/quickstart">
+    Drop into any Python project with minimal dependencies
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Quick example
 
-Everything you need to create world-class documentation.
+```python
+from main import URLFetcher
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+# Initialize with your custom user-agent
+fetcher = URLFetcher(
+    base_url="https://meawfy.com/internal/api/results.json",
+    user_agent="MyApp/1.0"
+)
 
-## Need inspiration?
+# Fetch URLs for a search query
+urls = fetcher.fetch_urls("python tutorial")
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+# Process results
+for url in urls:
+    print(url)
+```
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install the library and set up your Python environment
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your first search working in under 5 minutes
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/urlfetcher">
+    Explore the complete API documentation
+  </Card>
+  <Card title="Advanced usage" icon="wand-magic-sparkles" href="/guides/advanced-usage">
+    Learn advanced patterns and best practices
+  </Card>
+</CardGroup>
+
+## About Meawfy
+
+[Meawfy](https://meawfy.com) is a powerful search engine for finding files hosted on Mega.nz, including movies, games, courses, software, e-books, music, and more. The platform promotes learning and education by providing access to public domain and legally shared content while maintaining high ethical standards.

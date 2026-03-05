@@ -1,0 +1,391 @@
+---
+title: 'Error handling'
+description: 'Understand how to handle errors and exceptions when fetching URLs'
+---
+
+## Built-in error handling
+
+The `URLFetcher` class includes robust error handling in the `fetch_urls` method to manage network issues, HTTP errors, and other request failures gracefully.
+
+## How fetch_urls handles errors
+
+The method uses a try-except block to catch all request-related exceptions:
+
+```python main.py:25-44
+def fetch_urls(self, search_query):
+    """
+    Fetches URLs from the API based on the search query.
+
+    Parameters:
+    search_query (str): The query string for the API search.
+
+    Returns:
+    list: A list of URLs retrieved from the API.
+    """
+    try:
+        # Construct the complete URL with the search query
+        url = f"{self.base_url}?q={search_query}"
+
+        # Send a GET request to the API
+        response = requests.get(url, headers=self.headers)
+
+        # Raise an HTTPError for bad responses (4xx and 5xx)
+        response.raise_for_status()
+
+        # Parse the JSON response
+        data = response.json()
+
+        # Extract URLs from the data
+        urls = data.get('urls', [])
+        return urls
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return []
+```
+
+## What errors are caught?
+
+The `requests.exceptions.RequestException` is the base exception class that catches:
+
+- **ConnectionError**: Network connectivity issues, DNS failures
+- **Timeout**: Request takes too long to complete
+- **HTTPError**: HTTP 4xx or 5xx status codes (triggered by `raise_for_status()`)
+- **TooManyRedirects**: Too many redirects occurred
+- **JSONDecodeError**: Invalid JSON response from the server
+- **RequestException**: Any other request-related errors
+
+## Error behavior
+
+<Steps>
+  <Step title="Request is sent">
+    The method constructs the URL and sends a GET request to the API.
+  </Step>
+
+  <Step title="Status check">
+    `response.raise_for_status()` checks for HTTP errors (4xx, 5xx status codes). If found, it raises an `HTTPError`.
+  </Step>
+
+  <Step title="Exception handling">
+    If any exception occurs, it's caught by the except block, an error message is printed, and an empty list `[]` is returned.
+  </Step>
+</Steps>
+
+<Warning>
+  When an error occurs, `fetch_urls` returns an empty list `[]`. Your code should always check if the result is empty to distinguish between "no results found" and "an error occurred".
+</Warning>
+
+## Basic error handling in your code
+
+### Check for empty results
+
+```python
+from main import URLFetcher
+
+fetcher = URLFetcher(
+    "https://meawfy.com/internal/api/results.json",
+    "MyApp/1.0"
+)
+
+urls = fetcher.fetch_urls("python tutorials")
+
+if urls:
+    print(f"Found {len(urls)} URLs:")
+    for url in urls:
+        print(f"  - {url}")
+else:
+    print("No URLs found or an error occurred")
+```
+
+## Advanced error handling patterns
+
+### Custom error handling wrapper
+
+Create a wrapper to distinguish between errors and empty results:
+
+```python
+from main import URLFetcher
+import requests
+
+class EnhancedURLFetcher(URLFetcher):
+    def fetch_urls_with_status(self, search_query):
+        """
+        Fetches URLs and returns a tuple (success, urls, error_message)
+        """
+        try:
+            url = f"{self.base_url}?q={search_query}"
+            response = requests.get(url, headers=self.headers, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            urls = data.get('urls', [])
+            return (True, urls, None)
+        except requests.exceptions.Timeout:
+            return (False, [], "Request timed out")
+        except requests.exceptions.ConnectionError:
+            return (False, [], "Network connection failed")
+        except requests.exceptions.HTTPError as e:
+            return (False, [], f"HTTP error: {e.response.status_code}")
+        except requests.exceptions.RequestException as e:
+            return (False, [], f"Request failed: {str(e)}")
+
+# Usage
+fetcher = EnhancedURLFetcher(
+    "https://meawfy.com/internal/api/results.json",
+    "MyApp/1.0"
+)
+
+success, urls, error = fetcher.fetch_urls_with_status("python")
+
+if success:
+    print(f"Successfully retrieved {len(urls)} URLs")
+else:
+    print(f"Error: {error}")
+```
+
+### Implementing retry logic
+
+<Tabs>
+  <Tab title="Simple Retry">
+    Retry a fixed number of times with delay:
+
+    ```python
+    from main import URLFetcher
+    import time
+
+    def fetch_with_retry(fetcher, query, max_retries=3, delay=2):
+        """
+        Fetch URLs with automatic retry on failure
+        """
+        for attempt in range(max_retries):
+            urls = fetcher.fetch_urls(query)
+            
+            if urls:  # Success
+                return urls
+            
+            if attempt < max_retries - 1:
+                print(f"Attempt {attempt + 1} failed, retrying in {delay}s...")
+                time.sleep(delay)
+            else:
+                print(f"All {max_retries} attempts failed")
+        
+        return []
+
+    # Usage
+    fetcher = URLFetcher(
+        "https://meawfy.com/internal/api/results.json",
+        "MyApp/1.0"
+    )
+
+    urls = fetch_with_retry(fetcher, "machine learning")
+    print(f"Retrieved {len(urls)} URLs")
+    ```
+  </Tab>
+
+  <Tab title="Exponential Backoff">
+    Retry with increasing delays (better for rate limiting):
+
+    ```python
+    from main import URLFetcher
+    import time
+
+    def fetch_with_backoff(fetcher, query, max_retries=5):
+        """
+        Fetch URLs with exponential backoff retry strategy
+        """
+        for attempt in range(max_retries):
+            urls = fetcher.fetch_urls(query)
+            
+            if urls:
+                return urls
+            
+            if attempt < max_retries - 1:
+                delay = 2 ** attempt  # 1s, 2s, 4s, 8s, 16s
+                print(f"Attempt {attempt + 1} failed, waiting {delay}s...")
+                time.sleep(delay)
+        
+        return []
+
+    # Usage
+    fetcher = URLFetcher(
+        "https://meawfy.com/internal/api/results.json",
+        "MyApp/1.0"
+    )
+
+    urls = fetch_with_backoff(fetcher, "deep learning")
+    ```
+  </Tab>
+
+  <Tab title="Using tenacity library">
+    Use a dedicated retry library for more control:
+
+    ```python
+    from main import URLFetcher
+    from tenacity import retry, stop_after_attempt, wait_exponential
+    import requests
+
+    class RetryableURLFetcher(URLFetcher):
+        @retry(
+            stop=stop_after_attempt(3),
+            wait=wait_exponential(multiplier=1, min=2, max=10)
+        )
+        def fetch_urls_with_retry(self, search_query):
+            urls = self.fetch_urls(search_query)
+            if not urls:
+                raise Exception("No URLs returned")
+            return urls
+
+    # Usage
+    fetcher = RetryableURLFetcher(
+        "https://meawfy.com/internal/api/results.json",
+        "MyApp/1.0"
+    )
+
+    try:
+        urls = fetcher.fetch_urls_with_retry("data science")
+        print(f"Success: {len(urls)} URLs")
+    except Exception as e:
+        print(f"Failed after retries: {e}")
+    ```
+  </Tab>
+</Tabs>
+
+## Handling specific HTTP status codes
+
+Customize behavior based on HTTP status:
+
+```python
+from main import URLFetcher
+import requests
+
+class StatusAwareURLFetcher(URLFetcher):
+    def fetch_urls(self, search_query):
+        try:
+            url = f"{self.base_url}?q={search_query}"
+            response = requests.get(url, headers=self.headers)
+            
+            # Handle specific status codes before raising
+            if response.status_code == 429:
+                print("Rate limited. Please wait before making more requests.")
+                return []
+            elif response.status_code == 401:
+                print("Authentication required.")
+                return []
+            elif response.status_code == 404:
+                print("API endpoint not found.")
+                return []
+            
+            response.raise_for_status()
+            data = response.json()
+            return data.get('urls', [])
+            
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {e}")
+            return []
+```
+
+## Logging errors
+
+Implement proper logging instead of print statements:
+
+```python
+from main import URLFetcher
+import requests
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class LoggingURLFetcher(URLFetcher):
+    def fetch_urls(self, search_query):
+        logger.info(f"Fetching URLs for query: {search_query}")
+        
+        try:
+            url = f"{self.base_url}?q={search_query}"
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+            
+            data = response.json()
+            urls = data.get('urls', [])
+            
+            logger.info(f"Successfully fetched {len(urls)} URLs")
+            return urls
+            
+        except requests.exceptions.Timeout:
+            logger.error(f"Timeout fetching URLs for: {search_query}")
+            return []
+        except requests.exceptions.ConnectionError:
+            logger.error(f"Connection error for query: {search_query}")
+            return []
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"HTTP {e.response.status_code} error: {search_query}")
+            return []
+        except requests.exceptions.RequestException as e:
+            logger.exception(f"Unexpected error for query: {search_query}")
+            return []
+
+# Usage
+fetcher = LoggingURLFetcher(
+    "https://meawfy.com/internal/api/results.json",
+    "MyApp/1.0"
+)
+
+urls = fetcher.fetch_urls("tutorials")
+```
+
+## Timeout configuration
+
+Add timeout to prevent hanging requests:
+
+```python
+from main import URLFetcher
+import requests
+
+class TimeoutURLFetcher(URLFetcher):
+    def __init__(self, base_url, user_agent, timeout=10):
+        super().__init__(base_url, user_agent)
+        self.timeout = timeout
+    
+    def fetch_urls(self, search_query):
+        try:
+            url = f"{self.base_url}?q={search_query}"
+            response = requests.get(
+                url,
+                headers=self.headers,
+                timeout=self.timeout  # Timeout in seconds
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data.get('urls', [])
+        except requests.exceptions.Timeout:
+            print(f"Request timed out after {self.timeout}s")
+            return []
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {e}")
+            return []
+
+# Usage
+fetcher = TimeoutURLFetcher(
+    "https://meawfy.com/internal/api/results.json",
+    "MyApp/1.0",
+    timeout=15  # 15 second timeout
+)
+```
+
+<Tip>
+  Always set a timeout for production applications to prevent requests from hanging indefinitely. A good default is 10-30 seconds depending on expected API response times.
+</Tip>
+
+## Error handling best practices
+
+<Note>
+  1. **Always check return values**: Don't assume success - check if the returned list has content
+  2. **Use specific exceptions**: Catch specific exceptions when you need different handling logic
+  3. **Implement retries**: Network issues are often transient - retry with backoff
+  4. **Set timeouts**: Prevent indefinite waits with reasonable timeout values
+  5. **Log errors**: Use proper logging instead of print statements for production code
+  6. **Fail gracefully**: Return sensible defaults and inform users of issues
+</Note>

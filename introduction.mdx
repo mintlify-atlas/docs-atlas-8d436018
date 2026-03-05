@@ -1,0 +1,76 @@
+---
+title: Introduction
+description: Learn about Mega Search Links, a Python library for retrieving URLs from Meawfy's internal API
+---
+
+## What is Mega Search Links?
+
+Mega Search Links is a Python library designed to retrieve URLs from Meawfy's internal API. It provides a simple, programmatic interface for fetching URLs to various resources hosted on Mega.nz, including articles, multimedia content, and other web resources.
+
+The library connects to the Meawfy API, processes JSON results containing URLs, and returns them in a structured format that you can easily integrate into your applications.
+
+## About Meawfy
+
+Meawfy is a powerful search engine that helps users find a wide variety of files hosted on Mega.nz. The platform enables searching for movies, games, courses, software, e-books, music, TV series, documentaries, tutorials, and more.
+
+<Info>
+Meawfy is committed to promoting learning and education by providing access to public domain and legally shared content while ensuring compliance with copyright regulations.
+</Info>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Customizable User-Agent" icon="user">
+    Modify the user-agent to mimic different browsers or clients for your HTTP requests
+  </Card>
+  
+  <Card title="Robust Error Handling" icon="shield-check">
+    Built-in error handling to gracefully manage HTTP request issues and connection problems
+  </Card>
+  
+  <Card title="Modular Design" icon="cubes">
+    Clean, class-based architecture for easy maintenance and extension of functionality
+  </Card>
+  
+  <Card title="Simple API" icon="code">
+    Intuitive interface with just a few lines of code to start fetching URLs
+  </Card>
+</CardGroup>
+
+## Use Cases
+
+### Content Aggregation
+Automate the collection of URLs for articles, blog posts, and web resources. Perfect for SEO analysis, competitive research, and content curation platforms.
+
+### Data Collection
+Ideal for applications requiring bulk data collection, such as market analysis, academic research, and automated reporting systems.
+
+### Workflow Automation
+Streamline your workflows by programmatically fetching and processing URLs from Meawfy's extensive database of resources.
+
+### Multimedia Access
+Retrieve links to images, videos, and other media to support digital marketing campaigns, content creation, and media management.
+
+## How It Works
+
+The library uses the `URLFetcher` class to interact with Meawfy's API:
+
+1. Initialize the fetcher with a base URL and custom user-agent
+2. Call `fetch_urls()` with your search query
+3. Receive a list of URLs matching your search criteria
+
+<Tip>
+The library requires only the `requests` library as a dependency, making it lightweight and easy to integrate into existing projects.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Get started by installing Mega Search Links and its dependencies
+  </Card>
+  
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Follow a step-by-step guide to make your first API call
+  </Card>
+</CardGroup>

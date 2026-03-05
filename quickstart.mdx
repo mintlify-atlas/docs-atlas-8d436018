@@ -1,80 +1,185 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with Mega Search Links in minutes
 ---
 
-## Get started in three steps
+## Your First Search
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through making your first API call with Mega Search Links to retrieve URLs from Meawfy's internal API.
 
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+<Steps>
+  <Step title="Import the library">
+    First, import the `URLFetcher` class from the main module:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```python
+    from main import URLFetcher
+    ```
+  </Step>
+  
+  <Step title="Configure the API settings">
+    Set up the base URL and user-agent for your requests:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```python
+    # Base URL of the Meawfy API
+    base_url = "https://meawfy.com/internal/api/results.json"
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    # Custom user-agent string
+    user_agent = "MyCustomUserAgent/1.0"
+    ```
+    
+    <Tip>
+    You can customize the user-agent string to identify your application. This is useful for tracking API usage and debugging.
+    </Tip>
+  </Step>
+  
+  <Step title="Initialize the URLFetcher">
+    Create an instance of the `URLFetcher` class:
+    
+    ```python
+    url_fetcher = URLFetcher(base_url, user_agent)
+    ```
+  </Step>
+  
+  <Step title="Fetch URLs with a search query">
+    Call the `fetch_urls()` method with your search query:
+    
+    ```python
+    search_query = "example_query"
+    urls = url_fetcher.fetch_urls(search_query)
+    ```
+    
+    <Note>
+    Replace `"example_query"` with your actual search term (e.g., "python tutorials", "machine learning", etc.)
+    </Note>
+  </Step>
+  
+  <Step title="Process the results">
+    Handle the returned URLs:
+    
+    ```python
+    if urls:
+        print("Retrieved URLs:")
+        for url in urls:
+            print(url)
+    else:
+        print("No URLs found or an error occurred.")
+    ```
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Complete Example
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Here's a complete working example that puts it all together:
 
-### Step 3: Go live
+```python
+import requests
+from main import URLFetcher
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+def main():
+    # Base URL of the API
+    base_url = "https://meawfy.com/internal/api/results.json"
+    
+    # User-agent string
+    user_agent = "MyCustomUserAgent/1.0"
+    
+    # Initialize the URLFetcher with the base URL and user-agent
+    url_fetcher = URLFetcher(base_url, user_agent)
+    
+    # Example search query
+    search_query = "example_query"
+    
+    # Fetch URLs based on the search query
+    urls = url_fetcher.fetch_urls(search_query)
+    
+    # Display the retrieved URLs
+    if urls:
+        print("Retrieved URLs:")
+        for url in urls:
+            print(url)
+    else:
+        print("No URLs found or an error occurred.")
 
-## Next steps
+if __name__ == "__main__":
+    main()
+```
 
-Now that you have your docs running, explore these key features:
+## Understanding the Response
+
+The `fetch_urls()` method returns a list of URLs:
+
+- **Success**: Returns a list of URL strings (can be empty if no results found)
+- **Error**: Returns an empty list and prints an error message to the console
+
+<Info>
+The API returns results in JSON format with a `urls` key containing the array of URLs. The library automatically extracts this for you.
+</Info>
+
+## Error Handling
+
+The library includes built-in error handling for common issues:
+
+```python
+try:
+    urls = url_fetcher.fetch_urls(search_query)
+    if urls:
+        print(f"Found {len(urls)} URLs")
+    else:
+        print("No results found")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+<Warning>
+The `fetch_urls()` method catches `requests.exceptions.RequestException` internally and returns an empty list on error. Check the console output for error details.
+</Warning>
+
+## Common Use Cases
+
+### Batch Processing Multiple Queries
+
+```python
+queries = ["python tutorials", "machine learning", "web development"]
+
+for query in queries:
+    print(f"\nSearching for: {query}")
+    urls = url_fetcher.fetch_urls(query)
+    print(f"Found {len(urls)} URLs")
+```
+
+### Filtering Results
+
+```python
+urls = url_fetcher.fetch_urls("data science")
+
+# Filter for specific domains
+mega_urls = [url for url in urls if "mega.nz" in url]
+print(f"Found {len(mega_urls)} Mega.nz links")
+```
+
+## Best Practices
+
+<Tip>
+**Use descriptive user-agent strings**: Include your application name and version to help identify your requests.
+</Tip>
+
+<Tip>
+**Handle empty results gracefully**: Always check if the returned list is empty before processing.
+</Tip>
+
+<Tip>
+**Respect rate limits**: If making multiple requests, consider adding delays between calls to avoid overwhelming the API.
+</Tip>
+
+## Next Steps
+
+Now that you've made your first successful search, explore more advanced features:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="API Reference" icon="book" href="/api-reference/urlfetcher">
+    Detailed documentation of all classes and methods
+  </Card>
+  
+  <Card title="Advanced Guides" icon="graduation-cap" href="/guides/advanced-usage">
+    Learn advanced techniques and best practices
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

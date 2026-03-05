@@ -1,0 +1,150 @@
+---
+title: Installation
+description: Install Mega Search Links and its dependencies
+---
+
+## Prerequisites
+
+Before installing Mega Search Links, ensure you have:
+
+- Python 3.x installed on your system
+- pip (Python package installer)
+
+<Tip>
+You can check your Python version by running `python --version` or `python3 --version` in your terminal.
+</Tip>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone the repository">
+    First, clone the Mega Search Links repository to your local machine:
+    
+    ```bash
+    git clone https://github.com/galloclaudio/mega-search-links
+    ```
+  </Step>
+  
+  <Step title="Navigate to the project directory">
+    Change into the project directory:
+    
+    ```bash
+    cd mega-search-links
+    ```
+  </Step>
+  
+  <Step title="Install dependencies">
+    The library requires only the `requests` library. Install it using pip:
+    
+    <CodeGroup>
+    ```bash pip
+    pip install requests
+    ```
+    
+    ```bash pip3
+    pip3 install requests
+    ```
+    </CodeGroup>
+    
+    <Note>
+    The `requests` library is the only dependency required for Mega Search Links to function properly.
+    </Note>
+  </Step>
+  
+  <Step title="Verify installation">
+    Verify that you can import the library by opening a Python shell:
+    
+    ```bash
+    python3
+    ```
+    
+    Then try importing the URLFetcher class:
+    
+    ```python
+    from main import URLFetcher
+    print("Installation successful!")
+    ```
+    
+    If no errors appear, you're ready to use Mega Search Links!
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="ImportError: No module named 'requests'">
+    This error means the `requests` library is not installed. Make sure you ran the installation command:
+    
+    ```bash
+    pip install requests
+    ```
+    
+    If you're using Python 3 explicitly, try:
+    
+    ```bash
+    pip3 install requests
+    ```
+  </Accordion>
+  
+  <Accordion title="Permission denied errors">
+    If you encounter permission errors during installation, try using the `--user` flag:
+    
+    ```bash
+    pip install --user requests
+    ```
+    
+    Alternatively, use a virtual environment (recommended for project isolation).
+  </Accordion>
+  
+  <Accordion title="Multiple Python versions">
+    If you have multiple Python versions installed, ensure you're using the correct pip version:
+    
+    ```bash
+    python3 -m pip install requests
+    ```
+    
+    This explicitly uses the pip module associated with Python 3.
+  </Accordion>
+</AccordionGroup>
+
+## Using Virtual Environments (Recommended)
+
+For better dependency management, consider using a virtual environment:
+
+<Steps>
+  <Step title="Create a virtual environment">
+    ```bash
+    python3 -m venv venv
+    ```
+  </Step>
+  
+  <Step title="Activate the virtual environment">
+    <CodeGroup>
+    ```bash Linux/macOS
+    source venv/bin/activate
+    ```
+    
+    ```bash Windows
+    venv\Scripts\activate
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Install dependencies">
+    ```bash
+    pip install requests
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+Remember to activate your virtual environment each time you work on your project.
+</Warning>
+
+## Next Steps
+
+Now that you've installed Mega Search Links, you're ready to start fetching URLs!
+
+<Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+  Learn how to make your first API call and retrieve URLs
+</Card>

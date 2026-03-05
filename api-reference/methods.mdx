@@ -1,0 +1,85 @@
+---
+title: 'Methods'
+description: 'Available methods for the URLFetcher class'
+---
+
+## fetch_urls
+
+Fetches URLs from the API based on the search query.
+
+### Signature
+
+```python
+def fetch_urls(self, search_query)
+```
+
+### Parameters
+
+<ParamField path="search_query" type="str" required>
+  The query string for the API search.
+</ParamField>
+
+### Returns
+
+<ResponseField name="urls" type="list">
+  A list of URLs retrieved from the API. Returns an empty list if an error occurs.
+</ResponseField>
+
+### Behavior
+
+The method performs the following operations:
+
+1. Constructs the complete URL by appending the search query parameter
+2. Sends a GET request to the API with the configured headers
+3. Validates the HTTP response status using `raise_for_status()` (raises HTTPError for 4xx and 5xx status codes)
+4. Parses the JSON response
+5. Extracts URLs from the `'urls'` key in the response data
+
+### Exception Handling
+
+The method catches `requests.exceptions.RequestException` and handles errors gracefully:
+
+- Prints an error message to the console
+- Returns an empty list instead of raising an exception
+
+### Example
+
+```python
+from main import URLFetcher
+
+# Initialize the URLFetcher
+base_url = "https://meawfy.com/internal/api/results.json"
+user_agent = "MyCustomUserAgent/1.0"
+url_fetcher = URLFetcher(base_url, user_agent)
+
+# Example search query
+search_query = "example_query"
+
+# Fetch URLs based on the search query
+urls = url_fetcher.fetch_urls(search_query)
+
+# Display the retrieved URLs
+if urls:
+    print("Retrieved URLs:")
+    for url in urls:
+        print(url)
+else:
+    print("No URLs found or an error occurred.")
+```
+
+### Error Cases
+
+**Network Errors**: Any `requests.exceptions.RequestException` (including connection errors, timeouts, etc.) will be caught and handled:
+
+```python
+try:
+    response = requests.get(url, headers=self.headers)
+    response.raise_for_status()
+except requests.exceptions.RequestException as e:
+    print(f"An error occurred: {e}")
+    return []
+```
+
+**HTTP Errors**: The method calls `response.raise_for_status()` which raises an HTTPError for bad status codes (4xx and 5xx), which is then caught by the exception handler.
+
+**Empty Results**: If the API response doesn't contain a `'urls'` key, the method returns an empty list using `data.get('urls', [])`.

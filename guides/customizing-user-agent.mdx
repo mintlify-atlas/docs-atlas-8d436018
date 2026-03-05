@@ -1,0 +1,197 @@
+---
+title: 'Customizing user agent'
+description: 'Learn how to customize the user-agent header for your API requests'
+---
+
+## What is a user-agent?
+
+A user-agent is an HTTP header that identifies your application to the server. It tells the server what type of client is making the request (browser, bot, script, etc.). Many APIs and web services use this information to:
+
+- Track usage patterns and analytics
+- Apply rate limiting policies
+- Serve different content based on the client type
+- Block or allow specific clients
+
+## Why customize the user-agent?
+
+Customizing your user-agent is important for:
+
+- **Identification**: Clearly identify your application to server administrators
+- **Compliance**: Some APIs require specific user-agent formats
+- **Debugging**: Easily track requests from your application in server logs
+- **Courtesy**: Follow best practices by properly identifying your bot or application
+
+## How URLFetcher uses the user-agent
+
+The `URLFetcher` class accepts a `user_agent` parameter during initialization and stores it in the headers dictionary:
+
+```python main.py:4-13
+class URLFetcher:
+    def __init__(self, base_url, user_agent):
+        """
+        Initializes the URLFetcher with a base URL and user-agent.
+
+        Parameters:
+        base_url (str): The base URL for the API.
+        user_agent (str): The user-agent string to be used for the requests.
+        """
+        self.base_url = base_url
+        self.headers = {'User-Agent': user_agent}
+```
+
+This header is then used in all HTTP requests made by the `fetch_urls` method:
+
+```python main.py:30
+response = requests.get(url, headers=self.headers)
+```
+
+## Basic usage
+
+<Steps>
+  <Step title="Initialize URLFetcher with custom user-agent">
+    ```python
+    from main import URLFetcher
+
+    base_url = "https://meawfy.com/internal/api/results.json"
+    user_agent = "MyCustomUserAgent/1.0"
+
+    fetcher = URLFetcher(base_url, user_agent)
+    ```
+  </Step>
+
+  <Step title="Make requests with your custom user-agent">
+    ```python
+    urls = fetcher.fetch_urls("example_query")
+    ```
+
+    All requests will now include your custom user-agent header.
+  </Step>
+</Steps>
+
+## User-agent string examples
+
+<Tabs>
+  <Tab title="Custom Application">
+    Identify your application with version and contact info:
+
+    ```python
+    user_agent = "MeawfyBot/2.0 (+https://example.com/bot-info)"
+    fetcher = URLFetcher(base_url, user_agent)
+    ```
+
+    This format is recommended for bots and automated tools.
+  </Tab>
+
+  <Tab title="Browser Simulation">
+    Mimic a specific browser (use responsibly):
+
+    ```python
+    # Chrome on Windows
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    
+    # Firefox on macOS
+    user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0"
+    
+    fetcher = URLFetcher(base_url, user_agent)
+    ```
+
+    <Warning>
+      Some services may have terms of service that restrict automated access or require specific user-agents. Always review the API's terms before simulating a browser.
+    </Warning>
+  </Tab>
+
+  <Tab title="Research/Academic">
+    Identify academic or research purposes:
+
+    ```python
+    user_agent = "UniversityResearchBot/1.0 (University of Example; Research Project XYZ; contact@university.edu)"
+    fetcher = URLFetcher(base_url, user_agent)
+    ```
+  </Tab>
+
+  <Tab title="Company Bot">
+    Corporate or commercial identification:
+
+    ```python
+    user_agent = "CompanyName-DataCollector/3.1 (compatible; +https://company.com/crawler-policy)"
+    fetcher = URLFetcher(base_url, user_agent)
+    ```
+  </Tab>
+</Tabs>
+
+## Best practices
+
+<Note>
+  **Always include contact information** in your user-agent string. This allows server administrators to reach you if there are issues with your requests.
+</Note>
+
+### Recommended user-agent format
+
+```
+AppName/Version (Platform; +ContactURL)
+```
+
+Example:
+```python
+user_agent = "MegaSearchClient/1.0 (Python; +https://github.com/yourname/your-project)"
+```
+
+### When to use different user-agents
+
+<Tip>
+  - **Custom application string**: Best for most use cases, clearly identifies your app
+  - **Browser string**: Only when the API specifically requires it or serves different content to browsers
+  - **Descriptive bot string**: When running automated tasks, crawlers, or data collection
+  - **Generic string**: Avoid this - always be specific about your application
+</Tip>
+
+## Dynamic user-agent configuration
+
+You can make your user-agent configurable for different environments:
+
+```python
+import os
+from main import URLFetcher
+
+# Load from environment variable
+user_agent = os.getenv('MEAWFY_USER_AGENT', 'MegaSearchClient/1.0')
+
+# Or use different user-agents for production vs development
+if os.getenv('ENV') == 'production':
+    user_agent = "MegaSearchClient/1.0 (Production; +https://example.com)"
+else:
+    user_agent = "MegaSearchClient/1.0 (Development; testing@example.com)"
+
+fetcher = URLFetcher(
+    "https://meawfy.com/internal/api/results.json",
+    user_agent
+)
+```
+
+## Rotating user-agents
+
+For applications that need to rotate user-agents:
+
+```python
+from main import URLFetcher
+import random
+
+user_agents = [
+    "MegaSearchClient/1.0 (Linux; +https://example.com)",
+    "MegaSearchClient/1.0 (Windows; +https://example.com)",
+    "MegaSearchClient/1.0 (macOS; +https://example.com)",
+]
+
+base_url = "https://meawfy.com/internal/api/results.json"
+
+# Create new fetcher with random user-agent for each session
+for query in ["movies", "games", "courses"]:
+    user_agent = random.choice(user_agents)
+    fetcher = URLFetcher(base_url, user_agent)
+    urls = fetcher.fetch_urls(query)
+    print(f"Found {len(urls)} URLs for {query}")
+```
+
+<Warning>
+  Rotating user-agents should only be done when necessary and in compliance with the API's terms of service. Excessive rotation may be seen as an attempt to evade detection.
+</Warning>

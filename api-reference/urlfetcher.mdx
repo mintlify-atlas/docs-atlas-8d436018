@@ -1,0 +1,55 @@
+---
+title: 'URLFetcher Class'
+description: 'Core class for fetching URLs from the Mega Search Links API'
+---
+
+## Overview
+
+The `URLFetcher` class is the main interface for interacting with the Mega Search Links API. It handles API requests with custom user-agent headers and manages the base URL configuration.
+
+## Class Definition
+
+```python
+class URLFetcher:
+    def __init__(self, base_url, user_agent):
+        ...
+```
+
+## Constructor
+
+### `__init__(base_url, user_agent)`
+
+Initializes the URLFetcher with a base URL and user-agent.
+
+<ParamField path="base_url" type="str" required>
+  The base URL for the API.
+</ParamField>
+
+<ParamField path="user_agent" type="str" required>
+  The user-agent string to be used for the requests.
+</ParamField>
+
+## Instance Attributes
+
+After initialization, the URLFetcher instance has the following attributes:
+
+- `self.base_url`: Stores the base URL for the API
+- `self.headers`: Dictionary containing the User-Agent header
+
+## Example
+
+```python
+import requests
+from main import URLFetcher
+
+# Base URL of the API
+base_url = "https://meawfy.com/internal/api/results.json"
+
+# User-agent string
+user_agent = "MyCustomUserAgent/1.0"
+
+# Initialize the URLFetcher with the base URL and user-agent
+url_fetcher = URLFetcher(base_url, user_agent)
+```
+
+The URLFetcher instance is now ready to fetch URLs using the `fetch_urls()` method.
