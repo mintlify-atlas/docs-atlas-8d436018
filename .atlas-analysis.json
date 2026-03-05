@@ -1,0 +1,54 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "Mega Search Links",
+  "projectDescription": "Python library to retrieve and process URLs from Meawfy's internal API for accessing Mega.nz files.",
+  "theme": "palm",
+  "primaryColor": "#3344ec",
+  "lightColor": "#343434",
+  "darkColor": null,
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api-reference/urlfetcher",
+          "api-reference/methods"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/customizing-user-agent",
+          "guides/error-handling",
+          "guides/advanced-usage"
+        ]
+      },
+      {
+        "group": "Resources",
+        "pages": [
+          "contributing",
+          "license"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Retrieve URLs from Meawfy's internal API",
+    "Customizable user-agent for HTTP requests",
+    "Robust error handling for HTTP requests",
+    "Simple modular class-based design",
+    "Easy integration with Python applications"
+  ],
+  "publicApiSurface": [
+    "URLFetcher.__init__(base_url, user_agent)",
+    "URLFetcher.fetch_urls(search_query)"
+  ]
+}
